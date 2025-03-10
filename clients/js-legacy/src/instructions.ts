@@ -184,6 +184,7 @@ export const STAKE_POOL_INSTRUCTION_LAYOUTS: {
  */
 export type CleanupRemovedValidatorEntriesParams = {
   stakePool: PublicKey;
+  programId: PublicKey;
   validatorList: PublicKey;
 };
 
@@ -192,6 +193,7 @@ export type CleanupRemovedValidatorEntriesParams = {
  */
 export type UpdateValidatorListBalanceParams = {
   stakePool: PublicKey;
+  programId: PublicKey;
   withdrawAuthority: PublicKey;
   validatorList: PublicKey;
   reserveStake: PublicKey;
@@ -205,6 +207,7 @@ export type UpdateValidatorListBalanceParams = {
  */
 export type UpdateStakePoolBalanceParams = {
   stakePool: PublicKey;
+  programId: PublicKey;
   withdrawAuthority: PublicKey;
   validatorList: PublicKey;
   reserveStake: PublicKey;
@@ -449,6 +452,7 @@ export class StakePoolInstruction {
   ): TransactionInstruction {
     const {
       stakePool,
+      programId,
       withdrawAuthority,
       validatorList,
       reserveStake,
@@ -476,7 +480,7 @@ export class StakePoolInstruction {
     ];
 
     return new TransactionInstruction({
-      programId: STAKE_POOL_PROGRAM_ID,
+      programId,
       keys,
       data,
     });
@@ -488,6 +492,7 @@ export class StakePoolInstruction {
   static updateStakePoolBalance(params: UpdateStakePoolBalanceParams): TransactionInstruction {
     const {
       stakePool,
+      programId,
       withdrawAuthority,
       validatorList,
       reserveStake,
@@ -509,7 +514,7 @@ export class StakePoolInstruction {
     ];
 
     return new TransactionInstruction({
-      programId: STAKE_POOL_PROGRAM_ID,
+      programId,
       keys,
       data,
     });
@@ -521,7 +526,7 @@ export class StakePoolInstruction {
   static cleanupRemovedValidatorEntries(
     params: CleanupRemovedValidatorEntriesParams,
   ): TransactionInstruction {
-    const { stakePool, validatorList } = params;
+    const { stakePool, programId, validatorList } = params;
 
     const type = STAKE_POOL_INSTRUCTION_LAYOUTS.CleanupRemovedValidatorEntries;
     const data = encodeData(type);
@@ -532,7 +537,7 @@ export class StakePoolInstruction {
     ];
 
     return new TransactionInstruction({
-      programId: STAKE_POOL_PROGRAM_ID,
+      programId,
       keys,
       data,
     });

@@ -948,6 +948,7 @@ export async function decreaseValidatorStake(
 export async function updateStakePool(
   connection: Connection,
   stakePool: StakePoolAccount,
+  programId: PublicKey,
   noMerge = false,
 ) {
   const stakePoolAddress = stakePool.pubkey;
@@ -957,10 +958,7 @@ export async function updateStakePool(
     stakePool.account.data.validatorList,
   );
 
-  const withdrawAuthority = await findWithdrawAuthorityProgramAddress(
-    STAKE_POOL_PROGRAM_ID,
-    stakePoolAddress,
-  );
+  const withdrawAuthority = await findWithdrawAuthorityProgramAddress(programId, stakePoolAddress);
 
   const updateListInstructions: TransactionInstruction[] = [];
   const instructions: TransactionInstruction[] = [];
@@ -976,14 +974,14 @@ export async function updateStakePool(
 
     for (const validator of validatorChunk) {
       const validatorStake = await findStakeProgramAddress(
-        STAKE_POOL_PROGRAM_ID,
+        programId,
         validator.voteAccountAddress,
         stakePoolAddress,
       );
       validatorAndTransientStakePairs.push(validatorStake);
 
       const transientStake = await findTransientStakeProgramAddress(
-        STAKE_POOL_PROGRAM_ID,
+        programId,
         validator.voteAccountAddress,
         stakePoolAddress,
         validator.transientSeedSuffixStart,
@@ -994,6 +992,7 @@ export async function updateStakePool(
     updateListInstructions.push(
       StakePoolInstruction.updateValidatorListBalance({
         stakePool: stakePoolAddress,
+        programId,
         validatorList: stakePool.account.data.validatorList,
         reserveStake: stakePool.account.data.reserveStake,
         validatorAndTransientStakePairs,
@@ -1008,6 +1007,7 @@ export async function updateStakePool(
   instructions.push(
     StakePoolInstruction.updateStakePoolBalance({
       stakePool: stakePoolAddress,
+      programId,
       validatorList: stakePool.account.data.validatorList,
       reserveStake: stakePool.account.data.reserveStake,
       managerFeeAccount: stakePool.account.data.managerFeeAccount,
@@ -1019,6 +1019,7 @@ export async function updateStakePool(
   instructions.push(
     StakePoolInstruction.cleanupRemovedValidatorEntries({
       stakePool: stakePoolAddress,
+      programId,
       validatorList: stakePool.account.data.validatorList,
     }),
   );
